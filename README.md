@@ -84,8 +84,36 @@ All rare classes merged into:
 - Optional augmentation for rare classes (sequence shuffling)
 
 ---
+## 4. Ensemble Prediction System (4-Model Architecture)
 
-## 4. Main Model: TF-IDF + Logistic Regression
+To improve prediction stability and overcome the extreme class imbalance of the dataset, this project uses an **ensemble of four independently trained models**.  
+Each model focuses on a different version of the dataset, allowing it to specialize in identifying key gene types.
+
+### 🔬 Model Overview
+
+| Model No. | Description | Purpose |
+|----------|-------------|---------|
+| **Model 1** | Multiclass Logistic Regression | Predicts all supported gene types at once |
+| **Model 2** | Binary: **PSEUDO vs OTHERS** | Focused classifier for distinguishing PSEUDO genes |
+| **Model 3** | Binary: **PSEUDO + BIOLOGICAL_REGION vs OTHERS** | Specialized classifier for two major biological classes |
+| **Model 4** | Binary: **PSEUDO + BIOLOGICAL_REGION + ncRNA vs OTHERS** | Wider binary model including ncRNA |
+
+Each model outputs probabilities, and the **final decision** is made using a priority-based ensemble scoring approach where:
+
+- Confidence from specialized binary models is given higher weight  
+- Major classes like **BIOLOGICAL_REGION**, **PSEUDO**, and **ncRNA** receive special attention  
+- If all specialized models are below threshold, the fallback class becomes **OTHERS**
+
+---
+
+## 4.1 Sample Prediction (From All 4 Models)
+
+Below is an example output from the ensemble system:
+
+### 🧬 **Model 1 – Multiclass Prediction**
+
+
+## 4.2. Main Model: TF-IDF + Logistic Regression
 
 This model was chosen as the **primary production model** because:
 
@@ -95,7 +123,7 @@ This model was chosen as the **primary production model** because:
 - Highly interpretable
 - More stable than DL models under dataset imbalance
 
-### 4.1 Model Workflow
+### 4.2.1 Model Workflow
 1. Clean raw sequences  
 2. Convert to TF-IDF vectors  
 3. Train:
